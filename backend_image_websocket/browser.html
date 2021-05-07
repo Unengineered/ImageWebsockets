@@ -59,6 +59,20 @@
             }
 
         }
+        //to covert arraybuffer to string
+        function ab2str(buf) {
+   var str = "";
+   var ab = new Uint8Array(buf);
+   var abLen = ab.length;
+   var CHUNK_SIZE = Math.pow(2, 16);
+   var offset, len, subab;
+   for (offset = 0; offset < abLen; offset += CHUNK_SIZE) {
+      len = Math.min(CHUNK_SIZE, abLen-offset);
+      subab = ab.subarray(offset, offset+len);
+      str += String.fromCharCode.apply(null, subab);
+   }
+   return str;
+}
 
         function sendFile() {
 
@@ -75,8 +89,14 @@
             reader.onload = function(e) {
 
                 rawData = e.target.result;
-
-                ws.send(rawData);
+               
+                ws.send(JSON.stringify({
+                   ab: ab2str(rawData),
+                   fileName:file.name,
+                   fileSize:file.size,
+                   fileType:file.type
+                }));
+                // ws.send(rawData)
 
                 alert("the File has been transferred.")
 
